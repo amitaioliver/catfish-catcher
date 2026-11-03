@@ -46,20 +46,20 @@ t.storeReady.then(() => {
   // the +1 is a weak signal: alone it leaves the estimate low, with a stronger sign it counts
   const parts = (strong) => ({ strong, weak: [], trust: [], pending: [] });
   assert.strictEqual(t.combined(casey.flags, { parts: parts([]), joined: null }).signals.length, 0);
-  const withNew = t.combined(casey.flags, { parts: parts([{ pts: 3, text: 'Work history older than account' }]), joined: null });
+  const withNew = t.combined(casey.flags, { parts: parts([{ pts: 3, text: 'A strong sign' }]), joined: null });
   assert.strictEqual(withNew.total, 4);
 
   // search sentence: first usable line, cut on a word boundary
   assert.strictEqual(t.searchSentence(B, ''), 'Last week I offered a fully remote job to someone who had been out of work for');
 
-  // very new account with old work history: verification still counts, connections and roles don't reassure
+  // very new account: verification still counts, connections and roles don't reassure
   const monthsAgo = (m) => { const x = new Date(); x.setDate(1); x.setMonth(x.getMonth() - m); return x; };
-  const profile = { earliestStart: new Date(2011, 1, 1), headline: '', expLoaded: true, roleCount: 5, firstCompanyLine: '', about: '', connections: null, connectionsPlus: true, hasRecommendations: false, ownPost: '' };
+  const profile = { headline: '', expLoaded: true, roleCount: 5, firstCompanyLine: '', about: '', connections: null, connectionsPlus: true, hasRecommendations: false, ownPost: '' };
   const fresh = t.score(profile, { joined: monthsAgo(1), verified: true });
-  assert.deepStrictEqual(fresh.signals.map((s) => s.pts), [4, 3, 1, -2]); // +1: 500+ connections on a new account
-  assert.strictEqual(fresh.level, 'high');
+  assert.deepStrictEqual(fresh.signals.map((s) => s.pts), [4, -2]); // the +1 for fast connections is weak: not counted without a strong sign
+  assert.strictEqual(fresh.level, 'low'); // a new account alone needs another strong sign
   const older = t.score(profile, { joined: monthsAgo(8), verified: true });
-  assert.deepStrictEqual(older.signals.map((s) => s.pts), [2, 3, -2, -1, -1]);
+  assert.deepStrictEqual(older.signals.map((s) => s.pts), [2, -2, -1, -1]);
 
   // employers with no company page: one linked freelance role, then a group of 4 unlinked roles
   const L = t.LINK;
@@ -76,9 +76,12 @@ t.storeReady.then(() => {
 
   const renamed = { ...profile, unlinkedRoles: { roles: 5, unlinked: 4 }, name: 'Jamie Rivera', slug: 'maria-lopez-41a7b0441' };
   const all = t.score(renamed, { joined: monthsAgo(1), verified: true });
-  assert.deepStrictEqual(all.signals.map((s) => s.pts), [4, 3, 2, 2, 1, -2]);
+  assert.deepStrictEqual(all.signals.map((s) => s.pts), [4, 2, 2, 1, -2]);
   assert.strictEqual(all.level, 'high');
 
   console.log('ok');
   process.exit(0);
+}).catch((e) => {
+  console.error(e.message);
+  process.exit(1);
 });

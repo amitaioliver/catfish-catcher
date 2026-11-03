@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Catfish Catcher for LinkedIn",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Spot fake profiles, job scams and copied posts on LinkedIn. Free, and nothing leaves your browser.",
   "content_scripts": [
     {

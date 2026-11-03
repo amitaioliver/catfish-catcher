@@ -195,21 +195,7 @@
     const conn = cardText.match(/([\d,]+)\+?\s+connections/i);
 
     const exp = sectionLines('Experience');
-    let earliestStart = null;
-    let roleCount = 0;
-    let firstCompanyLine = '';
-    if (exp) {
-      const rangeRe = new RegExp(`((?:${MONTH_RE}\\s+)?\\d{4})\\s*[-–]\\s*(present|(?:${MONTH_RE}\\s+)?\\d{4})`, 'i');
-      exp.forEach((l) => {
-        const m = l.match(rangeRe);
-        if (m) {
-          roleCount++;
-          const d = parseMonthYear(m[1]);
-          if (d && (!earliestStart || d < earliestStart)) earliestStart = d;
-        }
-      });
-      firstCompanyLine = exp[1] || '';
-    }
+    const { roleCount, firstCompanyLine } = exp ? summariseExperience(exp) : { roleCount: 0, firstCompanyLine: '' };
 
     const about = (sectionLines('About') || []).join(' ');
     const activity = sectionLines('Activity');
@@ -245,7 +231,6 @@
       connections: conn ? parseInt(conn[1].replace(/,/g, ''), 10) : null,
       connectionsPlus: /500\+\s+connections/i.test(cardText),
       hasMutuals: /mutual connection/i.test(cardText),
-      earliestStart,
       roleCount,
       expLoaded: !!exp,
       firstCompanyLine,
@@ -332,17 +317,8 @@
 
   function summariseExperience(exp) {
     const rangeRe = new RegExp(`((?:${MONTH_RE}\\s+)?\\d{4})\\s*[-–]\\s*(present|(?:${MONTH_RE}\\s+)?\\d{4})`, 'i');
-    let earliestStart = null;
-    let roleCount = 0;
-    exp.forEach((l) => {
-      const m = l.match(rangeRe);
-      if (m) {
-        roleCount++;
-        const d = parseMonthYear(m[1]);
-        if (d && (!earliestStart || d < earliestStart)) earliestStart = d;
-      }
-    });
-    return { roleCount, earliestStart, firstCompanyLine: exp[1] || '' };
+    const roleCount = exp.filter((l) => rangeRe.test(l)).length;
+    return { roleCount, firstCompanyLine: exp[1] || '' };
   }
 
   // LinkedIn's own panels are opened with this style in place, so they never appear on screen
@@ -469,9 +445,6 @@
       if (age < 12) strong.push({ pts: age < 1 ? 5 : age < 3 ? 4 : age < 6 ? 3 : 2, newAccount: true, text: age === 0 ? `Account created this month (${fmt(d.joined)})` : `Account created ${fmt(d.joined)}, ${age} month${age === 1 ? '' : 's'} ago` });
       else if (age >= 36) trust.push({ pts: -3, text: `On LinkedIn since ${d.joined.getFullYear()}` });
       else trust.push({ pts: -1, text: `On LinkedIn since ${fmt(d.joined)}` });
-      if (p.earliestStart && age < 18 && monthsBetween(p.earliestStart, d.joined) >= 12) {
-        strong.push({ pts: 3, text: `Work history goes back to ${fmt(p.earliestStart)}, but the account was only created ${fmt(d.joined)}` });
-      }
     } else {
       pending.push('account age');
     }

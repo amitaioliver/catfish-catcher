@@ -38,7 +38,6 @@ Posts from your connections and your own profile are skipped.
 
 | Fishy signs | Points |
 |---|---|
-| Work history starts 12+ months before the account was created | +3 |
 | Latest post is a job lure | +2 |
 | Post copied word for word from an earlier poster | +2 |
 | Account created less than 12 months ago (under 1 month +5, 1–2 months +4, 3–5 months +3) | +2 |
