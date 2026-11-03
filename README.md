@@ -13,7 +13,7 @@ Fake recruiters copy real posts to win your trust. Catfish Catcher shows the sig
 ## Install
 
 - **Chrome, Edge, Brave:** Chrome Web Store (coming soon)
-- **Firefox:** Firefox Add-ons (coming soon)
+- **Firefox:** [Get it on Firefox Add-ons](https://addons.mozilla.org/firefox/addon/catfish-catcher-for-linkedin/)
 
 Or from source:
 
